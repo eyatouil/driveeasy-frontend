@@ -1,0 +1,266 @@
+<div class="container wizard-container">
+  <div class="page-header">
+    <a routerLink="/locations" class="back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Retour aux locations
+    </a>
+    <h1 class="page-title">Assistant de Nouvelle Location</h1>
+    <p class="page-subtitle">Créez une réservation sécurisée en 5 étapes avec validation en direct</p>
+  </div>
+
+  <!-- Wizard Steps Stepper Bar -->
+  <div class="stepper-bar">
+    <div class="step-node" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+      <div class="node-circle">1</div>
+      <span class="node-label">Client</span>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+    <div class="step-node" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+      <div class="node-circle">2</div>
+      <span class="node-label">Période</span>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+    <div class="step-node" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+      <div class="node-circle">3</div>
+      <span class="node-label">Véhicule</span>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 3"></div>
+
+    <div class="step-node" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+      <div class="node-circle">4</div>
+      <span class="node-label">Simulation</span>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 4"></div>
+
+    <div class="step-node" [class.active]="currentStep === 5">
+      <div class="node-circle">5</div>
+      <span class="node-label">Confirmation</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert-box alert-error">
+    {{ error }}
+  </div>
+
+  <!-- STEP 1: CLIENT SELECTION & ELIGIBILITY -->
+  <div *ngIf="currentStep === 1" class="card wizard-card">
+    <h2 class="step-title">Étape 1 : Sélection et éligibilité du client</h2>
+    <p class="step-desc">Choisissez un client enregistré. Le système vérifie instantanément son âge (≥ 21 ans) et la validité de son permis.</p>
+
+    <div class="form-group">
+      <label class="form-label">Sélectionner un client *</label>
+      <select [(ngModel)]="selectedClientId" (change)="onClientSelect()" class="form-control select-lg">
+        <option [ngValue]="null">-- Choisissez un client dans la liste --</option>
+        <option *ngFor="let c of clients" [value]="c.id">
+          {{ c.prenom }} {{ c.nom }} — CIN: {{ c.cin }} ({{ c.categorieClient }})
+        </option>
+      </select>
+    </div>
+
+    <!-- Live Eligibility Feedback -->
+    <div *ngIf="checkingEligibility" class="checking-box">
+      <div class="spinner-sm"></div>
+      <span>Contrôle de l'éligibilité auprès de client-service...</span>
+    </div>
+
+    <div *ngIf="eligibilite && !checkingEligibility" class="eligibility-result" [ngClass]="eligibilite.eligible ? 'res-eligible' : 'res-ineligible'">
+      <div class="result-header">
+        <span class="result-status">
+          {{ eligibilite.eligible ? '✓ Client Éligible' : '✗ Client Non Éligible' }}
+        </span>
+        <span class="badge" [ngClass]="'badge-' + eligibilite.categorieClient.toLowerCase()">
+          {{ eligibilite.categorieClient }}
+        </span>
+      </div>
+
+      <div class="result-details">
+        <p><strong>Âge :</strong> {{ eligibilite.age }} ans <span *ngIf="!eligibilite.ageValide" class="text-danger">(Minimum requis : 21 ans)</span></p>
+        <p><strong>Permis :</strong> Expiration le {{ eligibilite.dateExpirationPermis | date:'dd/MM/yyyy' }} <span *ngIf="!eligibilite.permisValide" class="text-danger">(Permis Expiré !)</span></p>
+      </div>
+
+      <div *ngIf="!eligibilite.eligible" class="refusal-alert">
+        <strong>Motif du refus :</strong> {{ eligibilite.motifRefus }}
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <div></div>
+      <button class="btn btn-primary" (click)="goToStep(2)" [disabled]="!selectedClient || !eligibilite?.eligible">
+        Continuer vers la période &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: DATES SELECTION -->
+  <div *ngIf="currentStep === 2" class="card wizard-card">
+    <h2 class="step-title">Étape 2 : Définition de la période de location</h2>
+    <p class="step-desc">Indiquez les dates de prise en charge et de restitution prévue du véhicule.</p>
+
+    <div class="form-row">
+      <div class="form-group col-6">
+        <label class="form-label">Date de début *</label>
+        <input type="date" [(ngModel)]="dateDebut" (change)="calcDuration()" class="form-control" />
+      </div>
+      <div class="form-group col-6">
+        <label class="form-label">Date de fin prévue *</label>
+        <input type="date" [(ngModel)]="dateFinPrevue" (change)="calcDuration()" class="form-control" />
+      </div>
+    </div>
+
+    <div class="duration-highlight">
+      <span>Durée calculée de la location :</span>
+      <strong>{{ dureeJours }} jour(s)</strong>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="goToStep(1)">&larr; Retour</button>
+      <button class="btn btn-primary" (click)="goToStep(3)">
+        Rechercher les véhicules disponibles &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AVAILABLE VEHICLES -->
+  <div *ngIf="currentStep === 3" class="card wizard-card">
+    <h2 class="step-title">Étape 3 : Choix du véhicule disponible</h2>
+    <p class="step-desc">Véhicules actuellement disponibles pour la période du {{ dateDebut | date:'dd/MM/yyyy' }} au {{ dateFinPrevue | date:'dd/MM/yyyy' }} ({{ dureeJours }} jours).</p>
+
+    <div *ngIf="loadingVehicules" class="loading-state">
+      <div class="spinner"></div>
+      <p>Interrogation du vehicule-service...</p>
+    </div>
+
+    <div *ngIf="!loadingVehicules && disponibles.length === 0" class="empty-state">
+      <p>Aucun véhicule disponible sur cette période.</p>
+    </div>
+
+    <div *ngIf="!loadingVehicules && disponibles.length > 0" class="dispo-grid">
+      <div *ngFor="let v of disponibles"
+           class="dispo-card"
+           [class.selected]="selectedVehiculeId === v.id"
+           (click)="selectVehicule(v)">
+        <div class="dispo-img-wrap">
+          <img [src]="v.imageUrl || 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'" alt="car" class="dispo-img" />
+          <span class="immat-badge">{{ v.immatriculation }}</span>
+        </div>
+        <div class="dispo-body">
+          <h3 class="dispo-title">{{ v.marque }} {{ v.modele }} ({{ v.annee }})</h3>
+          <div class="dispo-meta">
+            <span>{{ v.carburant }}</span> • <span>{{ v.boite }}</span> • <span>{{ v.nbPlaces }} places</span>
+          </div>
+          <div class="dispo-price">
+            <strong>{{ v.prixJournalier }} €</strong> / jour
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="goToStep(2)">&larr; Retour</button>
+      <button class="btn btn-primary" (click)="goToStep(4)" [disabled]="!selectedVehicule">
+        Simuler le prix &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4: PRICE SIMULATION -->
+  <div *ngIf="currentStep === 4" class="card wizard-card">
+    <h2 class="step-title">Étape 4 : Simulation du prix et calcul des remises</h2>
+    <p class="step-desc">Calcul en temps réel de la tarification avec application de la réduction de fidélité.</p>
+
+    <div *ngIf="loadingSimulation" class="loading-state">
+      <div class="spinner"></div>
+      <p>Calcul de la simulation...</p>
+    </div>
+
+    <div *ngIf="simulation && !loadingSimulation" class="simulation-box">
+      <div class="sim-header">
+        <div>
+          <h3>{{ simulation.vehiculeMarqueModele }}</h3>
+          <span class="sim-sub">{{ simulation.nombreJours }} jour(s) de location</span>
+        </div>
+        <span class="badge" [ngClass]="'badge-' + simulation.categorieClient.toLowerCase()">
+          Client {{ simulation.categorieClient }}
+        </span>
+      </div>
+
+      <div class="sim-table">
+        <div class="sim-row">
+          <span>Tarif journalier appliqué :</span>
+          <strong>{{ simulation.prixJournalier }} € / jour</strong>
+        </div>
+        <div class="sim-row">
+          <span>Montant brut ({{ simulation.prixJournalier }} € &times; {{ simulation.nombreJours }} j) :</span>
+          <strong>{{ simulation.montantBrut | number:'1.2-2' }} €</strong>
+        </div>
+        <div class="sim-row discount-row" *ngIf="simulation.tauxRemise > 0">
+          <span>Remise fidélité {{ simulation.categorieClient }} ({{ simulation.tauxRemise }}%) :</span>
+          <strong class="text-success">- {{ simulation.montantRemise | number:'1.2-2' }} €</strong>
+        </div>
+        <div class="sim-row discount-row" *ngIf="simulation.tauxRemise === 0">
+          <span>Remise fidélité (STANDARD) :</span>
+          <span class="text-muted">Aucune remise</span>
+        </div>
+        <div class="sim-row total-row">
+          <span>Montant total estimé TTC :</span>
+          <span class="total-price">{{ simulation.montantTotalEstime | number:'1.2-2' }} €</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="goToStep(3)">&larr; Retour</button>
+      <button class="btn btn-primary" (click)="goToStep(5)" [disabled]="!simulation">
+        Vérifier et confirmer &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CONFIRMATION -->
+  <div *ngIf="currentStep === 5" class="card wizard-card">
+    <h2 class="step-title">Étape 5 : Récapitulatif et confirmation finale</h2>
+    <p class="step-desc">Veuillez vérifier l'ensemble des données avant d'enregistrer la réservation.</p>
+
+    <div class="recap-grid" *ngIf="selectedClient && selectedVehicule && simulation">
+      <div class="recap-card">
+        <h4>Locataire</h4>
+        <p><strong>{{ selectedClient.prenom }} {{ selectedClient.nom }}</strong></p>
+        <p>CIN : {{ selectedClient.cin }}</p>
+        <p>Permis : {{ selectedClient.numeroPermis }}</p>
+        <p>Catégorie : <span class="badge" [ngClass]="'badge-' + selectedClient.categorieClient.toLowerCase()">{{ selectedClient.categorieClient }}</span></p>
+      </div>
+
+      <div class="recap-card">
+        <h4>Véhicule</h4>
+        <p><strong>{{ selectedVehicule.marque }} {{ selectedVehicule.modele }}</strong></p>
+        <p>Immatriculation : {{ selectedVehicule.immatriculation }}</p>
+        <p>Carburant : {{ selectedVehicule.carburant }}</p>
+        <p>Compteur initial : {{ selectedVehicule.kilometrage }} km</p>
+      </div>
+
+      <div class="recap-card">
+        <h4>Période</h4>
+        <p>Du : <strong>{{ dateDebut | date:'dd/MM/yyyy' }}</strong></p>
+        <p>Au : <strong>{{ dateFinPrevue | date:'dd/MM/yyyy' }}</strong></p>
+        <p>Durée : <strong>{{ dureeJours }} jours</strong></p>
+      </div>
+
+      <div class="recap-card highlight-card">
+        <h4>Facturation Prévue</h4>
+        <p>Tarif journalier : {{ simulation.prixJournalier }} €</p>
+        <p>Remise fidélité : {{ simulation.tauxRemise }}%</p>
+        <p class="final-total">{{ simulation.montantTotalEstime | number:'1.2-2' }} €</p>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn btn-secondary" (click)="goToStep(4)">&larr; Modifier la sélection</button>
+      <button class="btn btn-primary btn-lg" (click)="confirmBooking()" [disabled]="submitting">
+        <span *ngIf="submitting" class="btn-spinner"></span>
+        Confirmer et enregistrer la réservation
+      </button>
+    </div>
+  </div>
+</div>

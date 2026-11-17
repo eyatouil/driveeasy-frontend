@@ -1,0 +1,89 @@
+.form-page-container {
+  max-width: 800px;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--neutral-900);
+}
+
+.page-subtitle {
+  font-size: 0.9375rem;
+  color: var(--neutral-500);
+}
+
+.form-card {
+  padding: 2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.col-6 {
+  flex: 1 1 calc(50% - 0.625rem);
+  min-width: 250px;
+}
+
+.col-4 {
+  flex: 1 1 calc(33.333% - 0.833rem);
+  min-width: 180px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--neutral-200);
+}
+
+.alert-box {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.alert-error {
+  background: var(--danger-light);
+  border: 1px solid #fecaca;
+  color: var(--danger);
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

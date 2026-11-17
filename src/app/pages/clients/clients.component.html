@@ -1,0 +1,108 @@
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Répertoire de la Clientèle</h1>
+      <p class="page-subtitle">Suivi des profils clients, permis de conduire et éligibilité aux locations</p>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/clients/new" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nouveau Client
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="feedbackMessage" class="alert-box" [ngClass]="feedbackType === 'success' ? 'alert-success' : 'alert-error'">
+    <span>{{ feedbackMessage }}</span>
+  </div>
+
+  <!-- Search Card -->
+  <div class="card search-card">
+    <div class="search-box">
+      <div class="input-icon-wrapper">
+        <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" [(ngModel)]="searchQuery" (input)="fetchClients()" placeholder="Rechercher par nom, prénom, CIN ou email..." class="form-control" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Clients Table -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des clients...</p>
+  </div>
+
+  <div *ngIf="!loading && clients.length === 0" class="empty-state card">
+    <h3>Aucun client trouvé</h3>
+    <p>Aucun client ne correspond à votre recherche.</p>
+  </div>
+
+  <div *ngIf="!loading && clients.length > 0" class="card table-card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>CIN</th>
+            <th>Âge</th>
+            <th>Coordonnées</th>
+            <th>Permis de conduire</th>
+            <th>Fidélité</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of clients">
+            <td>
+              <div class="client-cell">
+                <div class="avatar">{{ c.prenom[0] }}{{ c.nom[0] }}</div>
+                <div class="client-meta">
+                  <span class="client-name">{{ c.prenom }} {{ c.nom }}</span>
+                  <span class="client-sub">Inscrit le {{ c.dateInscription | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="cin-badge">{{ c.cin }}</span>
+            </td>
+            <td>
+              <span [class.text-danger]="c.age !== undefined && c.age < 21" [class.font-bold]="c.age !== undefined && c.age < 21">
+                {{ c.age }} ans
+              </span>
+              <span *ngIf="c.age !== undefined && c.age < 21" class="mini-warning" title="Âge minimum requis : 21 ans">⚠️ &lt; 21</span>
+            </td>
+            <td>
+              <div class="contact-meta">
+                <span>{{ c.email }}</span>
+                <span class="phone-sub">{{ c.telephone }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="permis-cell">
+                <span class="permis-num">{{ c.numeroPermis }}</span>
+                <span *ngIf="c.permisValide" class="badge badge-disponible">Valide (exp: {{ c.dateExpirationPermis | date:'MM/yy' }})</span>
+                <span *ngIf="!c.permisValide" class="badge badge-maintenance alert-pulse">Expiré !</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="'badge-' + c.categorieClient.toLowerCase()">{{ c.categorieClient }}</span>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions">
+                <a [routerLink]="['/clients', c.id]" class="btn btn-secondary btn-sm" title="Consulter la fiche">
+                  Fiche
+                </a>
+                <a [routerLink]="['/clients', c.id, 'edit']" class="btn btn-secondary btn-sm" title="Modifier">
+                  Éditer
+                </a>
+                <button (click)="deleteClient(c)" class="btn btn-secondary btn-sm text-danger" title="Supprimer">
+                  ✕
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

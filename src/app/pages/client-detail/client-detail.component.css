@@ -1,0 +1,170 @@
+.detail-container {
+  max-width: 1000px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--neutral-900);
+}
+
+.page-subtitle {
+  font-size: 0.9375rem;
+  color: var(--neutral-500);
+}
+
+.page-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.page-actions .btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.banner-card {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  border-width: 2px;
+}
+
+.banner-eligible {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.banner-eligible .banner-icon {
+  color: var(--success);
+}
+
+.banner-ineligible {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.banner-ineligible .banner-icon {
+  color: var(--danger);
+}
+
+.banner-body {
+  flex: 1;
+}
+
+.banner-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--neutral-900);
+}
+
+.banner-text {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin-top: 0.25rem;
+}
+
+.text-danger-strong {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.detail-card {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--neutral-800);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.data-label {
+  color: var(--neutral-500);
+}
+
+.data-value {
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.history-card {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--neutral-400);
+}
