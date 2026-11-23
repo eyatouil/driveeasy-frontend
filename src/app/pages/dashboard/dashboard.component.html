@@ -72,8 +72,8 @@
         </div>
         <div class="kpi-content">
           <span class="kpi-label">Chiffre d'Affaires du Mois</span>
-          <span class="kpi-value text-warning">{{ stats.chiffreAffairesMoisCourant | number:'1.2-2' }} €</span>
-          <span class="kpi-sub">Total cumulé : {{ stats.chiffreAffairesTotal | number:'1.2-2' }} €</span>
+          <span class="kpi-value text-warning">{{ stats.chiffreAffairesMoisCourant | number:'1.2-2' }} DT</span>
+          <span class="kpi-sub">Total cumulé : {{ stats.chiffreAffairesTotal | number:'1.2-2' }} DT</span>
         </div>
       </div>
     </div>
@@ -157,8 +157,8 @@
             <tr *ngFor="let loc of recentLocations">
               <td><strong>#{{ loc.id }}</strong></td>
               <td>Du {{ loc.dateDebut | date:'dd/MM/yyyy' }} au {{ loc.dateFinPrevue | date:'dd/MM/yyyy' }}</td>
-              <td>{{ loc.prixJournalierApplique }} €/j</td>
-              <td><strong>{{ loc.montantTotal | number:'1.2-2' }} €</strong></td>
+              <td>{{ loc.prixJournalierApplique }} DT/j</td>
+              <td><strong>{{ loc.montantTotal | number:'1.2-2' }} DT</strong></td>
               <td>
                 <span class="badge" [ngClass]="'badge-' + loc.statut.toLowerCase().replace('_', '-')">{{ loc.statut }}</span>
               </td>

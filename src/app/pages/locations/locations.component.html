@@ -87,10 +87,10 @@
               </span>
             </td>
             <td>
-              <strong class="total-amount">{{ loc.montantTotal | number:'1.2-2' }} €</strong>
+              <strong class="total-amount">{{ loc.montantTotal | number:'1.2-2' }} DT</strong>
             </td>
             <td>
-              <span *ngIf="loc.penalite > 0" class="text-danger font-bold">+{{ loc.penalite | number:'1.2-2' }} €</span>
+              <span *ngIf="loc.penalite > 0" class="text-danger font-bold">+{{ loc.penalite | number:'1.2-2' }} DT</span>
               <span *ngIf="loc.penalite === 0" class="text-muted">-</span>
             </td>
             <td style="text-align: right;">
@@ -159,16 +159,16 @@
         <div class="modal-section billing-section">
           <h3>Décomposition Facturation</h3>
           <p>Durée : <strong>{{ selectedLocationEnrichie.dureeJours }} jours</strong></p>
-          <p>Tarif journalier : <strong>{{ selectedLocationEnrichie.prixJournalierApplique }} €/jour</strong></p>
+          <p>Tarif journalier : <strong>{{ selectedLocationEnrichie.prixJournalierApplique }} DT/jour</strong></p>
           <p *ngIf="selectedLocationEnrichie.remiseMontant > 0">
-            Remise de fidélité ({{ selectedLocationEnrichie.remisePourcentage }}%) : <strong class="text-success">-{{ selectedLocationEnrichie.remiseMontant | number:'1.2-2' }} €</strong>
+            Remise de fidélité ({{ selectedLocationEnrichie.remisePourcentage }}%) : <strong class="text-success">-{{ selectedLocationEnrichie.remiseMontant | number:'1.2-2' }} DT</strong>
           </p>
           <p *ngIf="selectedLocationEnrichie.penalite > 0">
-            Pénalités de retard : <strong class="text-danger">+{{ selectedLocationEnrichie.penalite | number:'1.2-2' }} €</strong>
+            Pénalités de retard : <strong class="text-danger">+{{ selectedLocationEnrichie.penalite | number:'1.2-2' }} DT</strong>
           </p>
           <div class="modal-total">
             <span>Montant total définitif :</span>
-            <span class="total-badge">{{ selectedLocationEnrichie.montantTotal | number:'1.2-2' }} €</span>
+            <span class="total-badge">{{ selectedLocationEnrichie.montantTotal | number:'1.2-2' }} DT</span>
           </div>
         </div>
       </div>

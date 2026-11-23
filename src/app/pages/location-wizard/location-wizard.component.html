@@ -151,7 +151,7 @@
             <span>{{ v.carburant }}</span> • <span>{{ v.boite }}</span> • <span>{{ v.nbPlaces }} places</span>
           </div>
           <div class="dispo-price">
-            <strong>{{ v.prixJournalier }} €</strong> / jour
+            <strong>{{ v.prixJournalier }} DT</strong> / jour
           </div>
         </div>
       </div>
@@ -189,15 +189,15 @@
       <div class="sim-table">
         <div class="sim-row">
           <span>Tarif journalier appliqué :</span>
-          <strong>{{ simulation.prixJournalier }} € / jour</strong>
+          <strong>{{ simulation.prixJournalier }} DT / jour</strong>
         </div>
         <div class="sim-row">
-          <span>Montant brut ({{ simulation.prixJournalier }} € &times; {{ simulation.nombreJours }} j) :</span>
-          <strong>{{ simulation.montantBrut | number:'1.2-2' }} €</strong>
+          <span>Montant brut ({{ simulation.prixJournalier }} DT &times; {{ simulation.nombreJours }} j) :</span>
+          <strong>{{ simulation.montantBrut | number:'1.2-2' }} DT</strong>
         </div>
         <div class="sim-row discount-row" *ngIf="simulation.tauxRemise > 0">
           <span>Remise fidélité {{ simulation.categorieClient }} ({{ simulation.tauxRemise }}%) :</span>
-          <strong class="text-success">- {{ simulation.montantRemise | number:'1.2-2' }} €</strong>
+          <strong class="text-success">- {{ simulation.montantRemise | number:'1.2-2' }} DT</strong>
         </div>
         <div class="sim-row discount-row" *ngIf="simulation.tauxRemise === 0">
           <span>Remise fidélité (STANDARD) :</span>
@@ -205,7 +205,7 @@
         </div>
         <div class="sim-row total-row">
           <span>Montant total estimé TTC :</span>
-          <span class="total-price">{{ simulation.montantTotalEstime | number:'1.2-2' }} €</span>
+          <span class="total-price">{{ simulation.montantTotalEstime | number:'1.2-2' }} DT</span>
         </div>
       </div>
     </div>
@@ -249,9 +249,9 @@
 
       <div class="recap-card highlight-card">
         <h4>Facturation Prévue</h4>
-        <p>Tarif journalier : {{ simulation.prixJournalier }} €</p>
+        <p>Tarif journalier : {{ simulation.prixJournalier }} DT</p>
         <p>Remise fidélité : {{ simulation.tauxRemise }}%</p>
-        <p class="final-total">{{ simulation.montantTotalEstime | number:'1.2-2' }} €</p>
+        <p class="final-total">{{ simulation.montantTotalEstime | number:'1.2-2' }} DT</p>
       </div>
     </div>
 

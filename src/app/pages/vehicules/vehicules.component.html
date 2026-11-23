@@ -49,7 +49,7 @@
       </div>
 
       <div class="filter-item">
-        <label class="filter-label">Prix max (€/j)</label>
+        <label class="filter-label">Prix max (DT/j)</label>
         <input type="number" [(ngModel)]="maxPrice" (input)="fetchVehicules()" placeholder="Ex: 80" class="form-control" />
       </div>
 
@@ -106,7 +106,7 @@
 
         <div class="card-footer">
           <div class="price-box">
-            <span class="price-val">{{ v.prixJournalier }} €</span>
+            <span class="price-val">{{ v.prixJournalier }} DT</span>
             <span class="price-unit">/ jour</span>
           </div>
 
