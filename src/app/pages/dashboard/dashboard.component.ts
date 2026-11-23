@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LocationService } from '../../services/location.service';
@@ -17,6 +17,7 @@ import { forkJoin } from 'rxjs';
 export class DashboardComponent implements OnInit {
   private locationService = inject(LocationService);
   private vehiculeService = inject(VehiculeService);
+  private cdr = inject(ChangeDetectorRef);
 
   stats: Statistiques | null = null;
   vehicules: Vehicule[] = [];
@@ -36,6 +37,7 @@ export class DashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.loading = true;
     this.error = null;
+    this.cdr.markForCheck();
 
     forkJoin({
       stats: this.locationService.getStatistiques(),
@@ -51,11 +53,13 @@ export class DashboardComponent implements OnInit {
         this.louesCount = this.vehicules.filter(v => v.statut === 'LOUE').length;
         this.maintenanceCount = this.vehicules.filter(v => v.statut === 'MAINTENANCE').length;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur chargement dashboard', err);
         this.error = 'Impossible de contacter la passerelle API Gateway (port 8080). Vérifiez que les microservices sont démarrés.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
