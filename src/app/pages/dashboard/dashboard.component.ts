@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LocationService } from '../../services/location.service';
@@ -8,6 +8,7 @@ import { Vehicule } from '../../models/vehicule.model';
 import { forkJoin } from 'rxjs';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink],

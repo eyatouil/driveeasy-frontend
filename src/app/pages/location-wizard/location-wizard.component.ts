@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { Vehicule } from '../../models/vehicule.model';
 import { SimulationResponse } from '../../models/location.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-location-wizard',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],

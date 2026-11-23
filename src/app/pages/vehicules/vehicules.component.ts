@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { VehiculeService } from '../../services/vehicule.service';
 import { Vehicule, Carburant, StatutVehicule } from '../../models/vehicule.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-vehicules',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
