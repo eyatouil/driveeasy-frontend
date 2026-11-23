@@ -1,0 +1,181 @@
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Locations</h1>
+      <p class="page-subtitle">Suivi du cycle de vie complet : réservations, départs, retours et facturation</p>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/locations/new" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nouvelle Location
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="feedbackMessage" class="alert-box" [ngClass]="feedbackType === 'success' ? 'alert-success' : 'alert-error'">
+    <span>{{ feedbackMessage }}</span>
+  </div>
+
+  <!-- Status Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="selectedStatut === ''" (click)="filterByStatut('')">
+      Toutes les locations
+    </button>
+    <button class="tab-btn" [class.active]="selectedStatut === 'RESERVEE'" (click)="filterByStatut('RESERVEE')">
+      Réservées
+    </button>
+    <button class="tab-btn" [class.active]="selectedStatut === 'EN_COURS'" (click)="filterByStatut('EN_COURS')">
+      En cours
+    </button>
+    <button class="tab-btn" [class.active]="selectedStatut === 'TERMINEE'" (click)="filterByStatut('TERMINEE')">
+      Terminées
+    </button>
+    <button class="tab-btn" [class.active]="selectedStatut === 'ANNULEE'" (click)="filterByStatut('ANNULEE')">
+      Annulées
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des locations...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && locations.length === 0" class="empty-state card">
+    <h3>Aucune location trouvée</h3>
+    <p>Aucune location ne correspond aux critères sélectionnés.</p>
+  </div>
+
+  <!-- Locations Table -->
+  <div *ngIf="!loading && locations.length > 0" class="card table-card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Véhicule</th>
+            <th>Période prévue</th>
+            <th>Statut</th>
+            <th>Total TTC</th>
+            <th>Pénalités</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let loc of locations">
+            <td><strong>#{{ loc.id }}</strong></td>
+            <td>
+              <a [routerLink]="['/clients', loc.clientId]" class="link-bold">
+                Client #{{ loc.clientId }}
+              </a>
+            </td>
+            <td>
+              <a [routerLink]="['/vehicules']" class="link-bold">
+                Véhicule #{{ loc.vehiculeId }}
+              </a>
+            </td>
+            <td>
+              <span class="period-text">
+                {{ loc.dateDebut | date:'dd/MM/yyyy' }} &rarr; {{ loc.dateFinPrevue | date:'dd/MM/yyyy' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="'badge-' + loc.statut.toLowerCase().replace('_', '-')">
+                {{ loc.statut }}
+              </span>
+            </td>
+            <td>
+              <strong class="total-amount">{{ loc.montantTotal | number:'1.2-2' }} €</strong>
+            </td>
+            <td>
+              <span *ngIf="loc.penalite > 0" class="text-danger font-bold">+{{ loc.penalite | number:'1.2-2' }} €</span>
+              <span *ngIf="loc.penalite === 0" class="text-muted">-</span>
+            </td>
+            <td style="text-align: right;">
+              <div class="actions-group">
+                <!-- Action: View detail -->
+                <button class="btn btn-secondary btn-sm" (click)="openDetails(loc)" title="Détail enrichi">
+                  Détail
+                </button>
+
+                <!-- Action: Depart (if RESERVEE) -->
+                <button *ngIf="loc.statut === 'RESERVEE'" class="btn btn-primary btn-sm" (click)="demarrer(loc)" title="Démarrer la location">
+                  Démarrer
+                </button>
+
+                <!-- Action: Return (if EN_COURS) -->
+                <a *ngIf="loc.statut === 'EN_COURS'" [routerLink]="['/locations', loc.id, 'retour']" class="btn btn-success btn-sm" title="Retour du véhicule">
+                  Retour
+                </a>
+
+                <!-- Action: Cancel (if RESERVEE or EN_COURS) -->
+                <button *ngIf="loc.statut === 'RESERVEE' || loc.statut === 'EN_COURS'" class="btn btn-secondary btn-sm text-danger" (click)="annuler(loc)" title="Annuler">
+                  Annuler
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Détail Enrichi de la Location #{{ selectedLocationEnrichie?.id }}</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div *ngIf="loadingModal" class="loading-state">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!loadingModal && selectedLocationEnrichie" class="modal-body">
+        <div class="modal-section">
+          <h3>Locataire</h3>
+          <div class="modal-data" *ngIf="selectedLocationEnrichie.client">
+            <p><strong>Nom :</strong> {{ selectedLocationEnrichie.client.prenom }} {{ selectedLocationEnrichie.client.nom }}</p>
+            <p><strong>CIN :</strong> {{ selectedLocationEnrichie.client.cin }}</p>
+            <p><strong>Email :</strong> {{ selectedLocationEnrichie.client.email }} | <strong>Téléphone :</strong> {{ selectedLocationEnrichie.client.telephone }}</p>
+            <p><strong>Catégorie fidélité :</strong> <span class="badge" [ngClass]="'badge-' + selectedLocationEnrichie.client.categorieClient.toLowerCase()">{{ selectedLocationEnrichie.client.categorieClient }}</span></p>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Véhicule</h3>
+          <div class="modal-data" *ngIf="selectedLocationEnrichie.vehicule">
+            <p><strong>Modèle :</strong> {{ selectedLocationEnrichie.vehicule.marque }} {{ selectedLocationEnrichie.vehicule.modele }}</p>
+            <p><strong>Immatriculation :</strong> {{ selectedLocationEnrichie.vehicule.immatriculation }}</p>
+            <p><strong>Carburant / Boîte :</strong> {{ selectedLocationEnrichie.vehicule.carburant }} / {{ selectedLocationEnrichie.vehicule.boite }}</p>
+            <p><strong>Kilométrage initial :</strong> {{ selectedLocationEnrichie.kmDepart }} km</p>
+            <p *ngIf="selectedLocationEnrichie.kmRetour"><strong>Kilométrage de retour :</strong> {{ selectedLocationEnrichie.kmRetour }} km</p>
+          </div>
+        </div>
+
+        <div class="modal-section billing-section">
+          <h3>Décomposition Facturation</h3>
+          <p>Durée : <strong>{{ selectedLocationEnrichie.dureeJours }} jours</strong></p>
+          <p>Tarif journalier : <strong>{{ selectedLocationEnrichie.prixJournalierApplique }} €/jour</strong></p>
+          <p *ngIf="selectedLocationEnrichie.remiseMontant > 0">
+            Remise de fidélité ({{ selectedLocationEnrichie.remisePourcentage }}%) : <strong class="text-success">-{{ selectedLocationEnrichie.remiseMontant | number:'1.2-2' }} €</strong>
+          </p>
+          <p *ngIf="selectedLocationEnrichie.penalite > 0">
+            Pénalités de retard : <strong class="text-danger">+{{ selectedLocationEnrichie.penalite | number:'1.2-2' }} €</strong>
+          </p>
+          <div class="modal-total">
+            <span>Montant total définitif :</span>
+            <span class="total-badge">{{ selectedLocationEnrichie.montantTotal | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

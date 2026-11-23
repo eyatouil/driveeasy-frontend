@@ -1,0 +1,203 @@
+<div class="container retour-container">
+  <div class="page-header no-print">
+    <div>
+      <a routerLink="/locations" class="back-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Retour aux locations
+      </a>
+      <h1 class="page-title">Clôture et Restitution du Véhicule</h1>
+      <p class="page-subtitle">Saisie du relevé kilométrique, calcul des pénalités éventuelles et édition de la facture</p>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert-box alert-error no-print">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading-state no-print">
+    <div class="spinner"></div>
+    <p>Chargement des données de la location...</p>
+  </div>
+
+  <!-- Form Section (Before Confirmation) -->
+  <div *ngIf="!loading && locationEnrichie && !retourConfirme" class="card form-card no-print">
+    <div class="overview-grid">
+      <div class="overview-item">
+        <span class="label">Location</span>
+        <strong>#{{ locationEnrichie.id }}</strong>
+      </div>
+      <div class="overview-item">
+        <span class="label">Client</span>
+        <strong>{{ locationEnrichie.client?.prenom }} {{ locationEnrichie.client?.nom }}</strong>
+      </div>
+      <div class="overview-item">
+        <span class="label">Véhicule</span>
+        <strong>{{ locationEnrichie.vehicule?.marque }} {{ locationEnrichie.vehicule?.modele }}</strong>
+      </div>
+      <div class="overview-item">
+        <span class="label">Retour prévu</span>
+        <strong>{{ locationEnrichie.dateFinPrevue | date:'dd/MM/yyyy' }}</strong>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <div class="form-row">
+        <!-- Date retour effectif -->
+        <div class="form-group col-6">
+          <label class="form-label">Date effective de restitution *</label>
+          <input type="date" [(ngModel)]="dateRetourEffectif" (change)="recalculer()" class="form-control" />
+          <div *ngIf="joursRetard > 0" class="retard-alert">
+            ⚠️ Retard constaté de <strong>{{ joursRetard }} jour(s)</strong> par rapport à la date prévue.
+          </div>
+        </div>
+
+        <!-- Kilométrage retour -->
+        <div class="form-group col-6">
+          <label class="form-label">Kilométrage au compteur au retour (km) *</label>
+          <input type="number" [(ngModel)]="kmRetour" (input)="recalculer()" class="form-control" />
+          <div class="km-hint">
+            Compteur de départ : <strong>{{ locationEnrichie.kmDepart }} km</strong>
+            (Distance parcourue : <strong>{{ distanceParcourue }} km</strong>)
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Calculation Box -->
+      <div class="calc-box">
+        <h3 class="calc-title">Bilan Financier et Pénalités</h3>
+        <div class="calc-table">
+          <div class="calc-row">
+            <span>Montant initial de la location :</span>
+            <strong>{{ locationEnrichie.montantTotal | number:'1.2-2' }} €</strong>
+          </div>
+          <div class="calc-row text-danger" *ngIf="joursRetard > 0">
+            <span>Pénalité de retard ({{ joursRetard }} j &times; 1,5 &times; {{ locationEnrichie.prixJournalierApplique }} €) :</span>
+            <strong>+{{ penaliteRetard | number:'1.2-2' }} €</strong>
+          </div>
+          <div class="calc-row text-success" *ngIf="joursRetard === 0">
+            <span>Pénalité de retard :</span>
+            <span>Aucun retard (0,00 €)</span>
+          </div>
+          <div class="calc-row final-total-row">
+            <span>Total final à facturer :</span>
+            <span class="final-price">{{ montantTotalFinal | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/locations" class="btn btn-secondary">Annuler</a>
+        <button class="btn btn-primary btn-lg" (click)="validerRetour()" [disabled]="submitting">
+          <span *ngIf="submitting" class="btn-spinner"></span>
+          Valider le retour et libérer le véhicule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINTABLE INVOICE / RECEIPT (After Confirmation or Printable) -->
+  <div *ngIf="!loading && locationEnrichie && retourConfirme" class="invoice-container">
+    <div class="success-banner no-print">
+      <div class="success-icon">✓</div>
+      <div>
+        <h3>Véhicule restitué avec succès !</h3>
+        <p>Le statut du véhicule a été réinitialisé à DISPONIBLE et le nouveau kilométrage est enregistré.</p>
+      </div>
+      <button class="btn btn-primary" (click)="imprimerFacture()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Imprimer la Facture
+      </button>
+    </div>
+
+    <!-- Official Invoice Document -->
+    <div class="card invoice-sheet">
+      <div class="invoice-header">
+        <div class="company-brand">
+          <h2 class="company-name">DriveEasy</h2>
+          <p class="company-tagline">Location de Véhicules de Courte & Moyenne Durée</p>
+          <p class="company-contact">Tunis, Tunisie • support&#64;driveeasy.tn • +216 71 000 000</p>
+        </div>
+        <div class="invoice-meta">
+          <span class="invoice-badge">FACTURE DÉFINITIVE</span>
+          <p class="invoice-number">Réf : FAC-{{ locationEnrichie.id }}-{{ locationEnrichie.dateCreation | date:'yyyyMMdd' }}</p>
+          <p class="invoice-date">Date : {{ dateRetourEffectif | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+
+      <div class="invoice-parties">
+        <div class="party-col">
+          <h4>LOCATAIRE</h4>
+          <p class="party-name">{{ locationEnrichie.client?.prenom }} {{ locationEnrichie.client?.nom }}</p>
+          <p>CIN : {{ locationEnrichie.client?.cin }}</p>
+          <p>Permis N° : {{ locationEnrichie.client?.numeroPermis }}</p>
+          <p>{{ locationEnrichie.client?.adresse }}</p>
+          <p>Email : {{ locationEnrichie.client?.email }}</p>
+        </div>
+        <div class="party-col">
+          <h4>VÉHICULE LOUÉ</h4>
+          <p class="party-name">{{ locationEnrichie.vehicule?.marque }} {{ locationEnrichie.vehicule?.modele }}</p>
+          <p>Immatriculation : <strong>{{ locationEnrichie.vehicule?.immatriculation }}</strong></p>
+          <p>Carburant : {{ locationEnrichie.vehicule?.carburant }}</p>
+          <p>Compteur départ : {{ locationEnrichie.kmDepart }} km</p>
+          <p>Compteur retour : {{ kmRetour }} km ({{ distanceParcourue }} km parcourus)</p>
+        </div>
+      </div>
+
+      <div class="invoice-dates-box">
+        <div><strong>Date départ :</strong> {{ locationEnrichie.dateDebut | date:'dd/MM/yyyy' }}</div>
+        <div><strong>Date fin prévue :</strong> {{ locationEnrichie.dateFinPrevue | date:'dd/MM/yyyy' }}</div>
+        <div><strong>Date retour effectif :</strong> {{ dateRetourEffectif | date:'dd/MM/yyyy' }}</div>
+      </div>
+
+      <table class="table invoice-table">
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Base</th>
+            <th>Quantité</th>
+            <th style="text-align: right;">Total TTC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Location {{ locationEnrichie.vehicule?.marque }} {{ locationEnrichie.vehicule?.modele }}</td>
+            <td>{{ locationEnrichie.prixJournalierApplique }} € / jour</td>
+            <td>{{ locationEnrichie.dureeJours }} jours</td>
+            <td style="text-align: right;">{{ (locationEnrichie.prixJournalierApplique * locationEnrichie.dureeJours) | number:'1.2-2' }} €</td>
+          </tr>
+          <tr *ngIf="locationEnrichie.remiseMontant > 0">
+            <td>Remise Fidélité (Catégorie {{ locationEnrichie.client?.categorieClient }})</td>
+            <td>{{ locationEnrichie.remisePourcentage }}%</td>
+            <td>1</td>
+            <td style="text-align: right;" class="text-success">-{{ locationEnrichie.remiseMontant | number:'1.2-2' }} €</td>
+          </tr>
+          <tr *ngIf="penaliteRetard > 0">
+            <td>Pénalité de retard (1,5 &times; tarif journalier)</td>
+            <td>{{ (locationEnrichie.prixJournalierApplique * 1.5) | number:'1.2-2' }} € / jour</td>
+            <td>{{ joursRetard }} jour(s)</td>
+            <td style="text-align: right;" class="text-danger">+{{ penaliteRetard | number:'1.2-2' }} €</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="invoice-total-row">
+            <td colspan="3" style="text-align: right; font-weight: 800; font-size: 1.125rem;">TOTAL PAYÉ TTC :</td>
+            <td style="text-align: right; font-weight: 800; font-size: 1.375rem; color: var(--primary);">{{ montantTotalFinal | number:'1.2-2' }} €</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="invoice-footer">
+        <p>Merci pour votre confiance. En cas de réclamation, contactez le service client au +216 71 000 000.</p>
+        <p class="signatures-row">
+          <span>Signature de l'Agent d'Agence : ___________________</span>
+          <span>Signature du Client : ___________________</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="bottom-actions no-print">
+      <a routerLink="/locations" class="btn btn-secondary">Retour à la liste des locations</a>
+      <button class="btn btn-primary" (click)="imprimerFacture()">Imprimer le reçu</button>
+    </div>
+  </div>
+</div>

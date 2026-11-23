@@ -1,0 +1,135 @@
+<div class="container form-page-container">
+  <div class="form-header">
+    <a routerLink="/vehicules" class="back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Retour au catalogue
+    </a>
+    <h1 class="page-title">{{ isEditMode ? 'Modifier le véhicule' : 'Ajouter un nouveau véhicule' }}</h1>
+    <p class="page-subtitle">Saisissez les caractéristiques techniques et tarifaires du véhicule</p>
+  </div>
+
+  <div *ngIf="error" class="alert-box alert-error">
+    {{ error }}
+  </div>
+
+  <div class="card form-card">
+    <form [formGroup]="vehiculeForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <!-- Immatriculation -->
+        <div class="form-group col-6">
+          <label class="form-label">Numéro d'immatriculation *</label>
+          <input type="text" formControlName="immatriculation" placeholder="Ex: 240 TUN 1021" class="form-control" />
+          <div *ngIf="vehiculeForm.get('immatriculation')?.touched && vehiculeForm.get('immatriculation')?.errors" class="form-error">
+            L'immatriculation est obligatoire et doit être unique.
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="form-group col-6">
+          <label class="form-label">Statut du véhicule *</label>
+          <select formControlName="statut" class="form-control">
+            <option value="DISPONIBLE">DISPONIBLE</option>
+            <option value="LOUE">LOUÉ</option>
+            <option value="MAINTENANCE">EN MAINTENANCE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Marque -->
+        <div class="form-group col-6">
+          <label class="form-label">Marque *</label>
+          <input type="text" formControlName="marque" placeholder="Ex: Peugeot, Renault, Tesla..." class="form-control" />
+          <div *ngIf="vehiculeForm.get('marque')?.touched && vehiculeForm.get('marque')?.errors" class="form-error">
+            La marque est obligatoire.
+          </div>
+        </div>
+
+        <!-- Modèle -->
+        <div class="form-group col-6">
+          <label class="form-label">Modèle *</label>
+          <input type="text" formControlName="modele" placeholder="Ex: 208 GT, Clio 5, Model 3..." class="form-control" />
+          <div *ngIf="vehiculeForm.get('modele')?.touched && vehiculeForm.get('modele')?.errors" class="form-error">
+            Le modèle est obligatoire.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Année -->
+        <div class="form-group col-4">
+          <label class="form-label">Année de mise en circulation *</label>
+          <input type="number" formControlName="annee" class="form-control" />
+          <div *ngIf="vehiculeForm.get('annee')?.touched && vehiculeForm.get('annee')?.errors" class="form-error">
+            L'année doit être cohérente (≥ 1990).
+          </div>
+        </div>
+
+        <!-- Couleur -->
+        <div class="form-group col-4">
+          <label class="form-label">Couleur *</label>
+          <input type="text" formControlName="couleur" placeholder="Ex: Blanc Nacré, Gris, Noir..." class="form-control" />
+        </div>
+
+        <!-- Nombre de places -->
+        <div class="form-group col-4">
+          <label class="form-label">Nombre de places *</label>
+          <input type="number" formControlName="nbPlaces" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Carburant -->
+        <div class="form-group col-6">
+          <label class="form-label">Type de carburant *</label>
+          <select formControlName="carburant" class="form-control">
+            <option value="ESSENCE">Essence</option>
+            <option value="DIESEL">Diesel</option>
+            <option value="HYBRIDE">Hybride</option>
+            <option value="ELECTRIQUE">Électrique</option>
+          </select>
+        </div>
+
+        <!-- Boîte de vitesses -->
+        <div class="form-group col-6">
+          <label class="form-label">Boîte de vitesses *</label>
+          <select formControlName="boite" class="form-control">
+            <option value="MANUELLE">Manuelle</option>
+            <option value="AUTOMATIQUE">Automatique</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Kilométrage -->
+        <div class="form-group col-6">
+          <label class="form-label">Kilométrage actuel (km) *</label>
+          <input type="number" formControlName="kilometrage" class="form-control" />
+        </div>
+
+        <!-- Prix journalier -->
+        <div class="form-group col-6">
+          <label class="form-label">Prix journalier (€ / jour) *</label>
+          <input type="number" step="0.5" formControlName="prixJournalier" class="form-control" />
+          <div *ngIf="vehiculeForm.get('prixJournalier')?.touched && vehiculeForm.get('prixJournalier')?.errors" class="form-error">
+            Le tarif doit être strictement supérieur à 0 €.
+          </div>
+        </div>
+      </div>
+
+      <!-- Image URL -->
+      <div class="form-group">
+        <label class="form-label">URL de la photo (optionnel)</label>
+        <input type="url" formControlName="imageUrl" placeholder="https://..." class="form-control" />
+      </div>
+
+      <div class="form-buttons">
+        <a routerLink="/vehicules" class="btn btn-secondary">Annuler</a>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="btn-spinner"></span>
+          {{ isEditMode ? 'Enregistrer les modifications' : 'Créer le véhicule' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

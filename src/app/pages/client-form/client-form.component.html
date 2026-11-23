@@ -1,0 +1,108 @@
+<div class="container form-page-container">
+  <div class="form-header">
+    <a routerLink="/clients" class="back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Retour à la liste des clients
+    </a>
+    <h1 class="page-title">{{ isEditMode ? 'Modifier la fiche client' : 'Créer un nouveau client' }}</h1>
+    <p class="page-subtitle">Saisissez les données d'identité et les coordonnées du permis</p>
+  </div>
+
+  <div *ngIf="error" class="alert-box alert-error">
+    {{ error }}
+  </div>
+
+  <div class="card form-card">
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <!-- CIN -->
+        <div class="form-group col-4">
+          <label class="form-label">Numéro CIN *</label>
+          <input type="text" formControlName="cin" placeholder="Ex: 08123456" class="form-control" />
+          <div *ngIf="clientForm.get('cin')?.touched && clientForm.get('cin')?.errors" class="form-error">
+            Le CIN est obligatoire et unique.
+          </div>
+        </div>
+
+        <!-- Nom -->
+        <div class="form-group col-4">
+          <label class="form-label">Nom *</label>
+          <input type="text" formControlName="nom" class="form-control" />
+        </div>
+
+        <!-- Prénom -->
+        <div class="form-group col-4">
+          <label class="form-label">Prénom *</label>
+          <input type="text" formControlName="prenom" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Date de naissance -->
+        <div class="form-group col-6">
+          <label class="form-label">Date de naissance *</label>
+          <input type="date" formControlName="dateNaissance" class="form-control" />
+          <div class="form-hint">Le client doit avoir au moins 21 ans pour pouvoir louer.</div>
+        </div>
+
+        <!-- Catégorie fidélité -->
+        <div class="form-group col-6">
+          <label class="form-label">Catégorie de fidélité *</label>
+          <select formControlName="categorieClient" class="form-control">
+            <option value="STANDARD">STANDARD (0% remise)</option>
+            <option value="FIDELE">FIDELE (5% remise)</option>
+            <option value="VIP">VIP (10% remise)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Email -->
+        <div class="form-group col-6">
+          <label class="form-label">Adresse email *</label>
+          <input type="email" formControlName="email" placeholder="client@exemple.tn" class="form-control" />
+          <div *ngIf="clientForm.get('email')?.touched && clientForm.get('email')?.errors" class="form-error">
+            Email valide obligatoire.
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="form-group col-6">
+          <label class="form-label">Téléphone *</label>
+          <input type="text" formControlName="telephone" placeholder="+216 ..." class="form-control" />
+        </div>
+      </div>
+
+      <!-- Adresse -->
+      <div class="form-group">
+        <label class="form-label">Adresse complète *</label>
+        <input type="text" formControlName="adresse" placeholder="Rue, Ville..." class="form-control" />
+      </div>
+
+      <div class="form-row">
+        <!-- Numéro de permis -->
+        <div class="form-group col-6">
+          <label class="form-label">Numéro de permis de conduire *</label>
+          <input type="text" formControlName="numeroPermis" placeholder="Ex: TN-9812345" class="form-control" />
+          <div *ngIf="clientForm.get('numeroPermis')?.touched && clientForm.get('numeroPermis')?.errors" class="form-error">
+            Le numéro de permis est obligatoire.
+          </div>
+        </div>
+
+        <!-- Date expiration permis -->
+        <div class="form-group col-6">
+          <label class="form-label">Date d'expiration du permis *</label>
+          <input type="date" formControlName="dateExpirationPermis" class="form-control" />
+          <div class="form-hint">Le permis doit être valide à la date de location.</div>
+        </div>
+      </div>
+
+      <div class="form-buttons">
+        <a routerLink="/clients" class="btn btn-secondary">Annuler</a>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ isEditMode ? 'Mettre à jour' : 'Enregistrer le client' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

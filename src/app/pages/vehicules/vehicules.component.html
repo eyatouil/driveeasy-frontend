@@ -1,0 +1,126 @@
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Catalogue du Parc Automobile</h1>
+      <p class="page-subtitle">Consultez, filtrez et gérez les véhicules de l'agence DriveEasy</p>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/vehicules/new" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Ajouter un véhicule
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="feedbackMessage" class="alert-box" [ngClass]="feedbackType === 'success' ? 'alert-success' : 'alert-error'">
+    <span>{{ feedbackMessage }}</span>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="card filter-card">
+    <div class="filter-grid">
+      <div class="filter-item search-item">
+        <label class="filter-label">Recherche</label>
+        <div class="input-icon-wrapper">
+          <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" [(ngModel)]="searchQuery" (input)="fetchVehicules()" placeholder="Marque ou modèle..." class="form-control" />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Carburant</label>
+        <select [(ngModel)]="selectedCarburant" (change)="fetchVehicules()" class="form-control">
+          <option value="">Tous les carburants</option>
+          <option value="ESSENCE">Essence</option>
+          <option value="DIESEL">Diesel</option>
+          <option value="HYBRIDE">Hybride</option>
+          <option value="ELECTRIQUE">Électrique</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Statut</label>
+        <select [(ngModel)]="selectedStatut" (change)="fetchVehicules()" class="form-control">
+          <option value="">Tous les statuts</option>
+          <option value="DISPONIBLE">Disponible</option>
+          <option value="LOUE">Loué</option>
+          <option value="MAINTENANCE">Maintenance</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Prix max (€/j)</label>
+        <input type="number" [(ngModel)]="maxPrice" (input)="fetchVehicules()" placeholder="Ex: 80" class="form-control" />
+      </div>
+
+      <div class="filter-item reset-item">
+        <button class="btn btn-secondary btn-sm" (click)="resetFilters()">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Grid -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des véhicules...</p>
+  </div>
+
+  <div *ngIf="!loading && vehicules.length === 0" class="empty-state card">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+    <h3>Aucun véhicule ne correspond aux critères</h3>
+    <p>Essayez de modifier ou de réinitialiser vos filtres de recherche.</p>
+    <button class="btn btn-secondary btn-sm" (click)="resetFilters()">Réinitialiser les filtres</button>
+  </div>
+
+  <div *ngIf="!loading && vehicules.length > 0" class="vehicules-grid">
+    <div *ngFor="let v of vehicules" class="card vehicule-card">
+      <div class="card-media">
+        <img [src]="v.imageUrl || 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'" [alt]="v.marque + ' ' + v.modele" class="vehicule-img" />
+        <span class="badge status-pill" [ngClass]="'badge-' + v.statut.toLowerCase()">{{ v.statut }}</span>
+        <span class="immat-pill">{{ v.immatriculation }}</span>
+      </div>
+
+      <div class="card-content">
+        <div class="title-row">
+          <h2 class="vehicule-title">{{ v.marque }} {{ v.modele }}</h2>
+          <span class="vehicule-year">{{ v.annee }}</span>
+        </div>
+
+        <div class="specs-chips">
+          <span class="spec-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            {{ v.carburant }}
+          </span>
+          <span class="spec-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ v.boite }}
+          </span>
+          <span class="spec-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            {{ v.nbPlaces }} places
+          </span>
+          <span class="spec-chip">
+            {{ v.kilometrage | number }} km
+          </span>
+        </div>
+
+        <div class="card-footer">
+          <div class="price-box">
+            <span class="price-val">{{ v.prixJournalier }} €</span>
+            <span class="price-unit">/ jour</span>
+          </div>
+
+          <div class="card-actions">
+            <a [routerLink]="['/vehicules', v.id, 'edit']" class="btn btn-secondary btn-sm" title="Modifier">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Modifier
+            </a>
+            <button class="btn btn-secondary btn-sm delete-btn" (click)="deleteVehicule(v)" title="Supprimer" [disabled]="v.statut === 'LOUE'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
