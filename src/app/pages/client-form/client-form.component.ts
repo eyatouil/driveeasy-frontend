@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HasUnsavedChanges } from '../../core/unsaved-changes.guard';
 import { ClientService } from '../../services/client.service';
 import { ClientFormData } from '../../models/client.model';
 
@@ -12,13 +13,19 @@ import { ClientFormData } from '../../models/client.model';
   templateUrl: './client-form.component.html',
   styleUrls: ['./client-form.component.css']
 })
-export class ClientFormComponent implements OnInit {
+export class ClientFormComponent implements OnInit, HasUnsavedChanges {
   private fb = inject(FormBuilder);
   private clientService = inject(ClientService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   clientForm!: FormGroup;
+  private saved = false;
+
+  /** Utilisé par unsavedChangesGuard : confirmation si le formulaire a été modifié. */
+  hasUnsavedChanges(): boolean {
+    return this.clientForm?.dirty === true && !this.saved;
+  }
   isEditMode = false;
   clientId?: number;
   loading = false;
@@ -100,6 +107,7 @@ export class ClientFormComponent implements OnInit {
     if (this.isEditMode && this.clientId) {
       this.clientService.updateClient(this.clientId, data).subscribe({
         next: () => {
+          this.saved = true;
           this.router.navigate(['/clients', this.clientId]);
         },
         error: (err) => {
@@ -110,6 +118,7 @@ export class ClientFormComponent implements OnInit {
     } else {
       this.clientService.createClient(data).subscribe({
         next: (created) => {
+          this.saved = true;
           this.router.navigate(['/clients', created.id]);
         },
         error: (err) => {

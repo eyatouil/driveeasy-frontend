@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HasUnsavedChanges } from '../../core/unsaved-changes.guard';
 import { VehiculeService } from '../../services/vehicule.service';
 import { VehiculeFormData } from '../../models/vehicule.model';
 
@@ -12,13 +13,19 @@ import { VehiculeFormData } from '../../models/vehicule.model';
   templateUrl: './vehicule-form.component.html',
   styleUrls: ['./vehicule-form.component.css']
 })
-export class VehiculeFormComponent implements OnInit {
+export class VehiculeFormComponent implements OnInit, HasUnsavedChanges {
   private fb = inject(FormBuilder);
   private vehiculeService = inject(VehiculeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   vehiculeForm!: FormGroup;
+  private saved = false;
+
+  /** Utilisé par unsavedChangesGuard : confirmation si le formulaire a été modifié. */
+  hasUnsavedChanges(): boolean {
+    return this.vehiculeForm?.dirty === true && !this.saved;
+  }
   isEditMode = false;
   vehiculeId?: number;
   loading = false;
@@ -31,7 +38,7 @@ export class VehiculeFormComponent implements OnInit {
       immatriculation: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\s-]+$/)]],
       marque: ['', [Validators.required]],
       modele: ['', [Validators.required]],
-      annee: [currentYear, [Validators.required, Validators.min(1990), Validators.max(currentYear + 1)]],
+      annee: [currentYear, [Validators.required, Validators.min(1990), Validators.max(currentYear)]],
       couleur: ['', [Validators.required]],
       carburant: ['ESSENCE', [Validators.required]],
       boite: ['MANUELLE', [Validators.required]],
@@ -109,6 +116,7 @@ export class VehiculeFormComponent implements OnInit {
     if (this.isEditMode && this.vehiculeId) {
       this.vehiculeService.updateVehicule(this.vehiculeId, data).subscribe({
         next: () => {
+          this.saved = true;
           this.router.navigate(['/vehicules']);
         },
         error: (err) => {
@@ -119,6 +127,7 @@ export class VehiculeFormComponent implements OnInit {
     } else {
       this.vehiculeService.createVehicule(data).subscribe({
         next: () => {
+          this.saved = true;
           this.router.navigate(['/vehicules']);
         },
         error: (err) => {
