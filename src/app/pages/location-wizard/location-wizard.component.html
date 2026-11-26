@@ -51,9 +51,11 @@
 
     <div class="form-group">
       <label class="form-label">Sélectionner un client *</label>
+      <input type="text" class="form-control" [(ngModel)]="clientSearch"
+             placeholder="Rechercher un client (nom, CIN, e-mail)..." style="margin-bottom:8px;" />
       <select [(ngModel)]="selectedClientId" (change)="onClientSelect()" class="form-control select-lg">
         <option [ngValue]="null">-- Choisissez un client dans la liste --</option>
-        <option *ngFor="let c of clients" [value]="c.id">
+        <option *ngFor="let c of filteredClients" [value]="c.id">
           {{ c.prenom }} {{ c.nom }} — CIN: {{ c.cin }} ({{ c.categorieClient }})
         </option>
       </select>

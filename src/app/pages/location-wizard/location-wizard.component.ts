@@ -27,6 +27,7 @@ export class LocationWizardComponent implements OnInit {
 
   // Step 1: Client
   clients: Client[] = [];
+  clientSearch = '';
   selectedClientId: number | null = null;
   selectedClient: Client | null = null;
   eligibilite: EligibiliteClient | null = null;
@@ -50,6 +51,13 @@ export class LocationWizardComponent implements OnInit {
   // General state
   submitting = false;
   error: string | null = null;
+
+  get filteredClients(): Client[] {
+    const q = this.clientSearch.trim().toLowerCase();
+    if (!q) return this.clients;
+    return this.clients.filter(c =>
+      `${c.prenom} ${c.nom} ${c.cin} ${c.email}`.toLowerCase().includes(q));
+  }
 
   ngOnInit(): void {
     const today = new Date();

@@ -20,6 +20,8 @@ export class LocationsComponent implements OnInit {
   selectedStatut: StatutLocation | '' = '';
   filterDateDebut = '';
   filterDateFin = '';
+  filterClientId: number | null = null;
+  filterVehiculeId: number | null = null;
 
   // Pagination (serveur) : page 0-indexée
   page = 0;
@@ -46,6 +48,8 @@ export class LocationsComponent implements OnInit {
 
     this.locationService.getLocationsPage(this.page, this.size, {
       statut: (this.selectedStatut as StatutLocation) || undefined,
+      clientId: this.filterClientId || undefined,
+      vehiculeId: this.filterVehiculeId || undefined,
       dateDebut: this.filterDateDebut || undefined,
       dateFin: this.filterDateFin || undefined
     }).subscribe({
@@ -79,6 +83,8 @@ export class LocationsComponent implements OnInit {
     this.page = 0;
     this.filterDateDebut = '';
     this.filterDateFin = '';
+    this.filterClientId = null;
+    this.filterVehiculeId = null;
     this.fetchLocations();
   }
 

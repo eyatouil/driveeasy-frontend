@@ -45,7 +45,15 @@
       <label class="filter-label">Au</label>
       <input type="date" class="form-control" [(ngModel)]="filterDateFin" (change)="applyFilters()" />
     </div>
-    <button class="btn btn-secondary btn-sm" (click)="resetPeriode()">Effacer la période</button>
+    <div>
+      <label class="filter-label">N° client</label>
+      <input type="number" class="form-control" [(ngModel)]="filterClientId" (input)="applyFilters()" placeholder="Ex: 1" />
+    </div>
+    <div>
+      <label class="filter-label">N° véhicule</label>
+      <input type="number" class="form-control" [(ngModel)]="filterVehiculeId" (input)="applyFilters()" placeholder="Ex: 4" />
+    </div>
+    <button class="btn btn-secondary btn-sm" (click)="resetPeriode()">Effacer les filtres</button>
   </div>
 
   <!-- Loading State -->

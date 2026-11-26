@@ -295,3 +295,5 @@
   border: 1px solid #fecaca;
   color: var(--danger);
 }
+
+.kpi-dt { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
