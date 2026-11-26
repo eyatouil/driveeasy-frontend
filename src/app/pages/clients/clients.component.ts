@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { ClientService } from '../../services/client.service';
 import { Client } from '../../models/client.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-clients',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
@@ -19,6 +20,12 @@ export class ClientsComponent implements OnInit {
   loading = true;
   error: string | null = null;
   searchQuery = '';
+
+  // Pagination et tri (côté client)
+  page = 1;
+  pageSize = 6;
+  sortKey: 'nom' | 'dateInscription' | 'categorieClient' = 'nom';
+  sortDir: 'asc' | 'desc' = 'asc';
 
   feedbackMessage: string | null = null;
   feedbackType: 'success' | 'error' = 'success';
@@ -34,6 +41,7 @@ export class ClientsComponent implements OnInit {
     this.clientService.getClients(this.searchQuery).subscribe({
       next: (data) => {
         this.clients = data;
+        this.page = 1;
         this.loading = false;
       },
       error: (err) => {
@@ -42,6 +50,28 @@ export class ClientsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.clients.length / this.pageSize));
+  }
+
+  get pagedClients(): Client[] {
+    const k = this.sortKey;
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    const sorted = [...this.clients].sort((a, b) => String(a[k] ?? '').localeCompare(String(b[k] ?? '')) * dir);
+    const start = (this.page - 1) * this.pageSize;
+    return sorted.slice(start, start + this.pageSize);
+  }
+
+  goTo(p: number): void {
+    this.page = Math.min(Math.max(1, p), this.totalPages);
+  }
+
+  sortBy(k: 'nom' | 'dateInscription' | 'categorieClient'): void {
+    if (this.sortKey === k) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
+    else { this.sortKey = k; this.sortDir = 'asc'; }
+    this.page = 1;
   }
 
   deleteClient(c: Client): void {

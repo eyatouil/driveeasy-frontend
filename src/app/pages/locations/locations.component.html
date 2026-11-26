@@ -35,6 +35,19 @@
     </button>
   </div>
 
+  <!-- Filtre par période -->
+  <div class="card" style="padding:12px 16px; margin-bottom:16px; display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+    <div>
+      <label class="filter-label">Du</label>
+      <input type="date" class="form-control" [(ngModel)]="filterDateDebut" (change)="applyFilters()" />
+    </div>
+    <div>
+      <label class="filter-label">Au</label>
+      <input type="date" class="form-control" [(ngModel)]="filterDateFin" (change)="applyFilters()" />
+    </div>
+    <button class="btn btn-secondary btn-sm" (click)="resetPeriode()">Effacer la période</button>
+  </div>
+
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-state">
     <div class="spinner"></div>
@@ -87,10 +100,10 @@
               </span>
             </td>
             <td>
-              <strong class="total-amount">{{ loc.montantTotal | number:'1.2-2' }} €</strong>
+              <strong class="total-amount">{{ loc.montantTotal | number:'1.2-2' }} DT</strong>
             </td>
             <td>
-              <span *ngIf="loc.penalite > 0" class="text-danger font-bold">+{{ loc.penalite | number:'1.2-2' }} €</span>
+              <span *ngIf="loc.penalite > 0" class="text-danger font-bold">+{{ loc.penalite | number:'1.2-2' }} DT</span>
               <span *ngIf="loc.penalite === 0" class="text-muted">-</span>
             </td>
             <td style="text-align: right;">
@@ -119,6 +132,12 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination-bar">
+      <button class="btn btn-secondary btn-sm" (click)="goToPage(page - 1)" [disabled]="page === 0">‹ Précédent</button>
+      <span class="pagination-info">Page {{ page + 1 }} / {{ totalPages }} · {{ totalElements }} locations</span>
+      <button class="btn btn-secondary btn-sm" (click)="goToPage(page + 1)" [disabled]="page + 1 >= totalPages">Suivant ›</button>
     </div>
   </div>
 
@@ -159,16 +178,16 @@
         <div class="modal-section billing-section">
           <h3>Décomposition Facturation</h3>
           <p>Durée : <strong>{{ selectedLocationEnrichie.dureeJours }} jours</strong></p>
-          <p>Tarif journalier : <strong>{{ selectedLocationEnrichie.prixJournalierApplique }} €/jour</strong></p>
+          <p>Tarif journalier : <strong>{{ selectedLocationEnrichie.prixJournalierApplique }} DT/jour</strong></p>
           <p *ngIf="selectedLocationEnrichie.remiseMontant > 0">
-            Remise de fidélité ({{ selectedLocationEnrichie.remisePourcentage }}%) : <strong class="text-success">-{{ selectedLocationEnrichie.remiseMontant | number:'1.2-2' }} €</strong>
+            Remise de fidélité ({{ selectedLocationEnrichie.remisePourcentage }}%) : <strong class="text-success">-{{ selectedLocationEnrichie.remiseMontant | number:'1.2-2' }} DT</strong>
           </p>
           <p *ngIf="selectedLocationEnrichie.penalite > 0">
-            Pénalités de retard : <strong class="text-danger">+{{ selectedLocationEnrichie.penalite | number:'1.2-2' }} €</strong>
+            Pénalités de retard : <strong class="text-danger">+{{ selectedLocationEnrichie.penalite | number:'1.2-2' }} DT</strong>
           </p>
           <div class="modal-total">
             <span>Montant total définitif :</span>
-            <span class="total-badge">{{ selectedLocationEnrichie.montantTotal | number:'1.2-2' }} €</span>
+            <span class="total-badge">{{ selectedLocationEnrichie.montantTotal | number:'1.2-2' }} DT</span>
           </div>
         </div>
       </div>

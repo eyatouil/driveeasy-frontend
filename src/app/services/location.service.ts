@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   Location,
   LocationEnrichie,
   LocationCreatePayload,
   SimulationPayload,
   SimulationResponse,
+  PageInfo,
   Statistiques,
   StatutLocation
 } from '../models/location.model';
@@ -17,6 +19,28 @@ import {
 export class LocationService {
   private http = inject(HttpClient);
   private baseUrl = 'http://localhost:8080/api/locations';
+
+  /** Liste paginée : le backend renvoie X-Total-Count / X-Total-Pages dans les en-têtes. */
+  getLocationsPage(
+    page: number,
+    size: number,
+    filters?: { statut?: StatutLocation; clientId?: number; vehiculeId?: number; dateDebut?: string; dateFin?: string; }
+  ): Observable<PageInfo<Location>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (filters?.statut) params = params.set('statut', filters.statut);
+    if (filters?.clientId) params = params.set('clientId', filters.clientId.toString());
+    if (filters?.vehiculeId) params = params.set('vehiculeId', filters.vehiculeId.toString());
+    if (filters?.dateDebut) params = params.set('dateDebut', filters.dateDebut);
+    if (filters?.dateFin) params = params.set('dateFin', filters.dateFin);
+    return this.http.get<Location[]>(this.baseUrl, { params, observe: 'response' }).pipe(
+      map(res => {
+        const items = res.body ?? [];
+        const total = Number(res.headers.get('X-Total-Count') ?? items.length);
+        const totalPages = Number(res.headers.get('X-Total-Pages') ?? 1);
+        return { items, total, totalPages: Math.max(1, totalPages), page, size };
+      })
+    );
+  }
 
   getLocations(filters?: {
     statut?: StatutLocation;

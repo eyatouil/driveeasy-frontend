@@ -42,17 +42,17 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Client</th>
+            <th (click)="sortBy('nom')" style="cursor:pointer">Client {{ sortKey === 'nom' ? (sortDir === 'asc' ? '↑' : '↓') : '' }}</th>
             <th>CIN</th>
             <th>Âge</th>
             <th>Coordonnées</th>
             <th>Permis de conduire</th>
-            <th>Fidélité</th>
+            <th (click)="sortBy('categorieClient')" style="cursor:pointer">Fidélité {{ sortKey === 'categorieClient' ? (sortDir === 'asc' ? '↑' : '↓') : '' }}</th>
             <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of clients">
+          <tr *ngFor="let c of pagedClients">
             <td>
               <div class="client-cell">
                 <div class="avatar">{{ c.prenom[0] }}{{ c.nom[0] }}</div>
@@ -104,5 +104,17 @@
         </tbody>
       </table>
     </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && clients.length > pageSize" class="pagination-bar">
+    <button class="btn btn-secondary btn-sm" (click)="goTo(page - 1)" [disabled]="page === 1">‹ Précédent</button>
+    <span class="pagination-info">Page {{ page }} / {{ totalPages }} · {{ clients.length }} résultats</span>
+    <button class="btn btn-secondary btn-sm" (click)="goTo(page + 1)" [disabled]="page === totalPages">Suivant ›</button>
+    <select [(ngModel)]="pageSize" (change)="goTo(1)" class="form-control pagination-size">
+      <option [ngValue]="6">6 / page</option>
+      <option [ngValue]="12">12 / page</option>
+      <option [ngValue]="24">24 / page</option>
+    </select>
+  </div>
   </div>
 </div>

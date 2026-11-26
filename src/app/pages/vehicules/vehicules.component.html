@@ -49,8 +49,21 @@
       </div>
 
       <div class="filter-item">
-        <label class="filter-label">Prix max (€/j)</label>
+        <label class="filter-label">Prix max (DT/j)</label>
         <input type="number" [(ngModel)]="maxPrice" (input)="fetchVehicules()" placeholder="Ex: 80" class="form-control" />
+      </div>
+
+      <div class="filter-item">
+        <label class="filter-label">Trier par</label>
+        <div style="display:flex; gap:6px;">
+          <select [(ngModel)]="sortKey" (change)="page = 1" class="form-control">
+            <option value="marque">Marque</option>
+            <option value="prixJournalier">Prix</option>
+            <option value="annee">Année</option>
+            <option value="kilometrage">Kilométrage</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" (click)="toggleSortDir()" [title]="sortDir === 'asc' ? 'Croissant' : 'Décroissant'">{{ sortDir === 'asc' ? '↑' : '↓' }}</button>
+        </div>
       </div>
 
       <div class="filter-item reset-item">
@@ -73,7 +86,7 @@
   </div>
 
   <div *ngIf="!loading && vehicules.length > 0" class="vehicules-grid">
-    <div *ngFor="let v of vehicules" class="card vehicule-card">
+    <div *ngFor="let v of pagedVehicules" class="card vehicule-card">
       <div class="card-media">
         <img [src]="v.imageUrl || 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'" [alt]="v.marque + ' ' + v.modele" class="vehicule-img" />
         <span class="badge status-pill" [ngClass]="'badge-' + v.statut.toLowerCase()">{{ v.statut }}</span>
@@ -106,7 +119,7 @@
 
         <div class="card-footer">
           <div class="price-box">
-            <span class="price-val">{{ v.prixJournalier }} €</span>
+            <span class="price-val">{{ v.prixJournalier }} DT</span>
             <span class="price-unit">/ jour</span>
           </div>
 
@@ -122,5 +135,17 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && vehicules.length > pageSize" class="pagination-bar">
+    <button class="btn btn-secondary btn-sm" (click)="goTo(page - 1)" [disabled]="page === 1">‹ Précédent</button>
+    <span class="pagination-info">Page {{ page }} / {{ totalPages }} · {{ vehicules.length }} résultats</span>
+    <button class="btn btn-secondary btn-sm" (click)="goTo(page + 1)" [disabled]="page === totalPages">Suivant ›</button>
+    <select [(ngModel)]="pageSize" (change)="goTo(1)" class="form-control pagination-size">
+      <option [ngValue]="6">6 / page</option>
+      <option [ngValue]="12">12 / page</option>
+      <option [ngValue]="24">24 / page</option>
+    </select>
   </div>
 </div>

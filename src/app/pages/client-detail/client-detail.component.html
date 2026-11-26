@@ -150,9 +150,9 @@
               <td>
                 <span class="badge" [ngClass]="'badge-' + l.statut.toLowerCase().replace('_', '-')">{{ l.statut }}</span>
               </td>
-              <td>{{ l.prixJournalierApplique }} €/j</td>
-              <td><strong>{{ l.montantTotal | number:'1.2-2' }} €</strong></td>
-              <td>{{ l.penalite > 0 ? (l.penalite + ' €') : '-' }}</td>
+              <td>{{ l.prixJournalierApplique }} DT/j</td>
+              <td><strong>{{ l.montantTotal | number:'1.2-2' }} DT</strong></td>
+              <td>{{ l.penalite > 0 ? (l.penalite + ' DT') : '-' }}</td>
             </tr>
           </tbody>
         </table>

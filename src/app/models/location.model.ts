@@ -70,3 +70,11 @@ export interface Statistiques {
     nombreLocations: number;
   }[];
 }
+
+export interface PageInfo<T> {
+  items: T[];
+  total: number;
+  totalPages: number;
+  page: number;
+  size: number;
+}

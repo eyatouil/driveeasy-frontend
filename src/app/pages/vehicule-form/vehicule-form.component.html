@@ -109,10 +109,10 @@
 
         <!-- Prix journalier -->
         <div class="form-group col-6">
-          <label class="form-label">Prix journalier (€ / jour) *</label>
+          <label class="form-label">Prix journalier (DT / jour) *</label>
           <input type="number" step="0.5" formControlName="prixJournalier" class="form-control" />
           <div *ngIf="vehiculeForm.get('prixJournalier')?.touched && vehiculeForm.get('prixJournalier')?.errors" class="form-error">
-            Le tarif doit être strictement supérieur à 0 €.
+            Le tarif doit être strictement supérieur à 0 DT.
           </div>
         </div>
       </div>

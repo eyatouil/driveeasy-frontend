@@ -69,7 +69,7 @@ driveeasy-frontend/
 
 ## 3. Prérequis & Installation
 
-- **Node.js** v20 ou supérieur (v22 recommandé)
+- **Node.js** **22.22.2 ou supérieur** (testé avec 22.23.5) — requis par certaines dépendances Angular 22 (voir `package-lock.json`)
 - **npm** v10 ou supérieur
 - Le backend DriveEasy doit être démarré (API Gateway sur le port `8080`)
 
@@ -107,10 +107,16 @@ Les artefacts optimisés sont générés dans `dist/driveeasy-frontend/`.
 
 3. **Test Réservation avec Remise Fidélité VIP (10%)** :
    - Sélectionnez le client **Karim Ben Romdhane** (VIP)
-   - Choisissez une période de 4 jours et sélectionnez la **Peugeot 208 GT** (45 €/jour)
-   - À l'étape 4 (Simulation), constatez la remise VIP appliquée de 10% (-18,00 €) pour un total de 162,00 €.
+   - Choisissez une période de 4 jours et sélectionnez la **Peugeot 208 GT** (45 DT/jour)
+   - À l'étape 4 (Simulation), constatez la remise VIP appliquée de 10% (-18,00 DT) pour un total de 162,00 DT.
 
 4. **Test Cycle Complet (Départ $\rightarrow$ Restitution avec Pénalité)** :
    - Sur `/locations`, cliquez sur "Démarrer" pour la réservation créée : le statut passe à `EN_COURS` et le véhicule devient `LOUE`.
    - Cliquez sur "Retour", saisissez une date postérieure à la date prévue (+2 jours) et le kilométrage de retour : la pénalité de retard (1,5x) est calculée automatiquement.
    - Validez : le véhicule repasse automatiquement à `DISPONIBLE` et la facture finale s'affiche avec le bouton d'impression.
+
+## Tests unitaires
+
+```bash
+npm test        # Vitest : services, intercepteur d'erreurs, pagination des locations
+```

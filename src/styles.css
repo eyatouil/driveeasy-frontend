@@ -237,3 +237,8 @@ button, input, select, textarea {
 .table tr:hover td {
   background: #f8fafc;
 }
+
+/* Pagination */
+.pagination-bar { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px 0; }
+.pagination-info { font-size:.9rem; color:#64748b; }
+.pagination-size { width:auto; }

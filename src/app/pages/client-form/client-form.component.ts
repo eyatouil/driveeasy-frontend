@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { ClientService } from '../../services/client.service';
 import { ClientFormData } from '../../models/client.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-client-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -38,7 +39,7 @@ export class ClientFormComponent implements OnInit, HasUnsavedChanges {
       prenom: ['', [Validators.required]],
       dateNaissance: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      telephone: ['', [Validators.required]],
+      telephone: ['', [Validators.required, Validators.pattern(/^(\+216|00216)?[\s]?\d{2}[\s]?\d{3}[\s]?\d{3}$/)]],
       adresse: ['', [Validators.required]],
       numeroPermis: ['', [Validators.required]],
       dateExpirationPermis: ['', [Validators.required]],

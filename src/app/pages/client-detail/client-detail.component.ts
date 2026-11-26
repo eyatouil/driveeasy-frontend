@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ClientService } from '../../services/client.service';
@@ -8,6 +8,7 @@ import { Location } from '../../models/location.model';
 import { forkJoin } from 'rxjs';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-client-detail',
   standalone: true,
   imports: [CommonModule, RouterLink],

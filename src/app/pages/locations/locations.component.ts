@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { LocationService } from '../../services/location.service';
 import { Location, StatutLocation, LocationEnrichie } from '../../models/location.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-locations',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
@@ -17,6 +18,14 @@ export class LocationsComponent implements OnInit {
 
   locations: Location[] = [];
   selectedStatut: StatutLocation | '' = '';
+  filterDateDebut = '';
+  filterDateFin = '';
+
+  // Pagination (serveur) : page 0-indexée
+  page = 0;
+  size = 10;
+  totalElements = 0;
+  totalPages = 1;
   loading = true;
   error: string | null = null;
   feedbackMessage: string | null = null;
@@ -35,11 +44,15 @@ export class LocationsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.locationService.getLocations({
-      statut: (this.selectedStatut as StatutLocation) || undefined
+    this.locationService.getLocationsPage(this.page, this.size, {
+      statut: (this.selectedStatut as StatutLocation) || undefined,
+      dateDebut: this.filterDateDebut || undefined,
+      dateFin: this.filterDateFin || undefined
     }).subscribe({
-      next: (data) => {
-        this.locations = data;
+      next: (res) => {
+        this.locations = res.items;
+        this.totalElements = res.total;
+        this.totalPages = res.totalPages;
         this.loading = false;
       },
       error: (err) => {
@@ -50,8 +63,28 @@ export class LocationsComponent implements OnInit {
     });
   }
 
+  /** Tout changement de filtre repart de la première page. */
+  applyFilters(): void {
+    this.page = 0;
+    this.fetchLocations();
+  }
+
+  goToPage(p: number): void {
+    if (p < 0 || p >= this.totalPages) return;
+    this.page = p;
+    this.fetchLocations();
+  }
+
+  resetPeriode(): void {
+    this.page = 0;
+    this.filterDateDebut = '';
+    this.filterDateFin = '';
+    this.fetchLocations();
+  }
+
   filterByStatut(statut: StatutLocation | ''): void {
     this.selectedStatut = statut;
+    this.page = 0;
     this.fetchLocations();
   }
 
